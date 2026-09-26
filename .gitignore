@@ -4,12 +4,12 @@
 !.env.example
 *.pem
 *.key
-secrets/
+/secrets/
 
 # data + state (local only)
-data/
-state/
-logs/
+/data/
+/state/
+/logs/
 *.parquet
 *.duckdb
 *.duckdb.wal
