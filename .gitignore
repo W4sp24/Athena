@@ -43,3 +43,6 @@ Thumbs.db
 
 # Claude Code agent worktrees
 .claude/worktrees/
+
+# backtest outputs (local)
+reports/
