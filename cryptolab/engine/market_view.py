@@ -81,7 +81,10 @@ class MarketData:
         start = min(int(a[0]) for a in ns.values())
         end = max(int(a[-1]) for a in ns.values())
         # A regular grid, so a timestamp missing for every symbol is still a bar (math.md §5.7).
-        self.grid_ns: IntArr = np.arange(start, end + 1, self.bar_ns, dtype=np.int64)
+        # Integer bar count: np.arange(start, end + 1, step) sizes itself in float64 and
+        # silently drops the last bar(s) of long ns-epoch series.
+        n_bars = (end - start) // self.bar_ns + 1
+        self.grid_ns: IntArr = start + self.bar_ns * np.arange(n_bars, dtype=np.int64)
         grid_index = pd.DatetimeIndex(self.grid_ns.astype("datetime64[ns]")).tz_localize("UTC")
         self.index = grid_index
         self.bar_times: list[datetime] = list(grid_index.to_pydatetime())

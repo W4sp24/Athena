@@ -85,6 +85,19 @@ def test_returned_frame_is_an_isolated_copy() -> None:
         assert np.asarray(base).size <= 2 * 6  # at most the 2 visible rows (x columns)
 
 
+@pytest.mark.parametrize("n", [1, 2, 20_000, 26_280, 50_000])
+def test_grid_keeps_every_bar_of_long_series(n: int) -> None:
+    """Regression: np.arange(start, end + 1, step) on int64 ns sizes the grid in float64 and
+    silently dropped the final bar(s) of multi-year hourly series."""
+    ts = pd.date_range(T0, periods=n, freq="h", tz="UTC")
+    df = pd.DataFrame({"ts": ts, **{c: np.ones(n) for c in ("open", "high", "low", "close")}})
+    df["volume"] = 1.0
+    d = MarketData({"A": df}, 3600)
+    assert len(d) == n
+    assert d.bar_times[-1] == ts[-1]
+    assert int(d.sym["A"].row_at[-1]) == n - 1
+
+
 def test_ts_is_utc_ns() -> None:
     b = PointInTimeView(_data(), 1).bars("B")
     assert isinstance(b["ts"].dtype, pd.DatetimeTZDtype)
