@@ -105,6 +105,11 @@ def test_future_bars_do_not_change_the_past(sc: dict[str, Any], paper: bool) -> 
     r1 = _run(sc["bars"], s1, paper)
     r2 = _run(sc["perturbed"], s2, paper)
 
+    # Deleting every row after k can end the perturbed run's bar grid early. A shorter horizon
+    # is not information: compare only the span both runs cover.
+    tau_k = min(tau_k, r2.equity.index[-1])
+    d_k = min(d_k, s2.decisions[-1][0]) if s2.decisions else d_k
+
     # every decision at or before d_k is identical
     dec1 = [d for d in s1.decisions if d[0] <= d_k]
     dec2 = [d for d in s2.decisions if d[0] <= d_k]

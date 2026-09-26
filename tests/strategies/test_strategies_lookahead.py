@@ -59,9 +59,11 @@ def test_baselines_ignore_the_future(sc: dict[str, Any], which: str) -> None:
     tau_k = T0 + k * H
     s1, s2 = Recording(FACTORIES[which]()), Recording(FACTORIES[which]())
     r1, r2 = _run(sc["bars"], s1), _run(sc["perturbed"], s2)
-    assert [d for d in s1.decisions if d[0] <= tau_k + H] == [
-        d for d in s2.decisions if d[0] <= tau_k + H
-    ]
+    # Deleting every row after k can end the perturbed run's bar grid early; a shorter
+    # horizon is not information, so compare only the span both runs cover.
+    tau_k = min(tau_k, r2.equity.index[-1])
+    d_k = min(tau_k + H, s2.decisions[-1][0]) if s2.decisions else tau_k + H
+    assert [d for d in s1.decisions if d[0] <= d_k] == [d for d in s2.decisions if d[0] <= d_k]
     pd.testing.assert_series_equal(r1.equity.loc[:tau_k], r2.equity.loc[:tau_k])
     pd.testing.assert_frame_equal(
         r1.fills[r1.fills["ts"] <= tau_k].reset_index(drop=True),
