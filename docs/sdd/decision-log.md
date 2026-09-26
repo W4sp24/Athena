@@ -139,3 +139,19 @@ Date: 2026-09-27 · Decided by: Claude · Status: Accepted
 - **Context:** The context doc says Python 3.11+. Current NumPy type stubs use 3.12-only syntax, so strict mypy fails when it targets 3.11. The dev machine runs 3.12.
 - **Decision:** `requires-python >=3.12`. CI, ruff, and mypy all target 3.12. This still satisfies "3.11+".
 - **Alternatives considered:** pin an older NumPy, or loosen mypy. Both trade correctness tooling for a Python version nobody here uses.
+
+## D-015: Separate research risk profile for backtests
+Date: 2026-09-27 · Decided by: Claude, pending Ethan's review · Status: Proposed
+- **Context:** RiskGate runs in every mode, backtest included (D-004). The signed-off paper limits (D-012: 25% per symbol, 1,000 USDT per symbol, 500 USDT per order, 20 orders/hour, 3% daily loss, 15% drawdown) are sized for a small paper account. Applied to a research backtest with, say, 10,000 USDT of initial capital, they cap every position at 1,000 USDT and reject every order above 500 USDT. A single-symbol strategy, and the BTC buy-and-hold benchmark (`math.md` §3.7), could then never be more than 10% invested, so the results would say nothing about the strategy.
+- **Decision:** Two risk profiles, both loaded into the same frozen `RiskLimits` model and both enforced by the same RiskGate code:
+  - `configs/risk.paper.yaml`: the D-012 defaults exactly as written in `risk-model.md` §2/§3. Used for paper and testnet.
+  - `configs/risk.backtest.yaml`: a research profile with explicit values: `max_position_pct_equity` 100, `max_gross_exposure_pct` 100 (still no leverage), `max_position_notional` null, `max_order_notional` null, `min_order_notional` 10, `max_orders_per_hour` null, `allow_short` true (simulated shorts, backtest only, D-011), `max_daily_loss_pct` 100, `max_drawdown_pct` 100.
+  - Every value is visible in the file. There is no "disabled" flag, and RiskGate, the kill switch, and the per-bar drawdown/daily-loss evaluation still run on every order and bar.
+  - Shorts stay rejected in paper and testnet regardless of `allow_short` (D-011). That rule lives in RiskGate code, not in config.
+  - Both profiles set `stale_data_seconds: null`, which RiskGate reads as the `risk-model.md` §2 default of 2 × the run's bar length.
+  - Every `RiskLimits` key is required and unknown keys are rejected, so a typo fails loudly.
+- **Consequences:** `risk-model.md` §1 names a single `configs/risk.yaml`. That file is now `configs/risk.paper.yaml`, and the paper/testnet runner must load the paper profile. A report must say which profile a backtest used; the engine records the limits in `BacktestResult.meta`.
+- **Alternatives considered:**
+  - (a) Use the paper profile for backtests. Rejected: it makes research results and the benchmark meaningless (see Context).
+  - (b) A `risk_enabled: false` flag for backtests. Rejected: it would test a different code path from paper (the reason for D-004), and a flag like that can be flipped by accident in the wrong profile.
+  - (c) Scale the paper notional caps with initial capital. Rejected for now: it changes the meaning of a signed-off value, which needs Ethan's decision.

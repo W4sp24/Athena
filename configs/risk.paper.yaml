@@ -1,0 +1,19 @@
+# Paper / testnet risk profile.
+# These are the signed-off defaults from docs/sdd/risk-model.md §2 and §3 (decision-log D-012).
+# Change a value only via a new decision-log entry. Percentages are in percent (25 = 25%).
+# Notionals are in the quote currency (USDT).
+
+# §2 position and order limits
+allowed_symbols: null          # null = the pairs in the run's data config
+max_position_pct_equity: 25    # |q_i| C_i / V after the fill, per symbol
+max_position_notional: 1000    # per-symbol absolute cap (USDT)
+max_gross_exposure_pct: 100    # sum_i |q_i| C_i / V; 100 = no leverage
+max_order_notional: 500        # per order (USDT); breaching it rejects
+min_order_notional: 10         # dust floor (math.md §5.1)
+max_orders_per_hour: 20        # runaway-loop brake
+allow_short: false             # spot accounts cannot short; RiskGate rejects shorts outside backtest anyway
+stale_data_seconds: null       # null = 2 x bar length of the run (risk-model §2 default)
+
+# §3 kill-switch thresholds
+max_daily_loss_pct: 3          # V_now / V_00:00UTC - 1 <= -3%
+max_drawdown_pct: 15           # V_now / HWM - 1 <= -15%
