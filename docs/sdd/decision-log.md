@@ -111,3 +111,25 @@ Date: 2026-09-26 · Decided by: Claude, pending Ethan's review · Status: Propos
   - Negative weights are allowed in backtest only, with no borrow cost. That optimism is disclosed in the report.
   - RiskGate rejects shorts in paper and testnet.
 - **Alternative considered:** removing shorts entirely. That would lose a research capability the SRS keeps.
+
+## D-012: Ethan signs off math.md v0.1 and risk-model.md v0.1 with defaults
+Date: 2026-09-27 · Decided by: Ethan · Status: Accepted
+- **Decision:** `math.md` v0.1 and `risk-model.md` v0.1 are accepted as written, including every `[DECIDE]` default:
+  - $r_f = 0$, constant-bps slippage
+  - δ = 15 min, W = 24 h, half-life = 6 h
+  - limits and kill-switch thresholds of 25% / 1,000 / 100% / 500 / 10 / 20, 3% daily loss, 15% drawdown
+  - clip-on-exposure
+  - 5-minute reconciliation, 0.1% tolerance
+- **Also accepted:** the proposed entries D-004, D-005, D-009, D-010, and D-011.
+- **Why now:** Ethan wants usable software soon, and the engine was blocked on this sign-off (D-001).
+- **Changing values later:** any value can be changed with a new entry. Engine code must follow the documents, and changing a document first requires a new decision-log entry.
+- **Alternative considered:** a line-by-line review before any engine work. Deferred at Ethan's request.
+
+## D-013: Historical market data from Binance public endpoints, OKX as fallback
+Date: 2026-09-27 · Decided by: Claude, from a P1-style probe · Status: Accepted
+- **Evidence:** On 2026-09-27, `fetch_ohlcv('BTC/USDT','1h')` returned data from the dev machine in the Philippines for Binance, Bybit, OKX, Kraken, Coinbase, KuCoin, and Bitget.
+- **Decision:**
+  - The default *research data* source is `binance` (deepest spot history, needs no account).
+  - `okx` is the fallback (FR-04).
+- **This is not a choice of trading exchange.** The exchange used for testnet and, later, live trading stays open. It depends on the regulatory question in `deployment.md` §4.2: SEC PH advisories and access restrictions affecting some offshore exchanges.
+- **Alternative considered:** using the same exchange for data and trading from day one. Rejected until §4.2 is answered.
