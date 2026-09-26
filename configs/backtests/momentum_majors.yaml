@@ -1,0 +1,11 @@
+name: momentum on majors
+data:
+  exchange: binance
+  timeframe: 1h
+  symbols: [BTC/USDT, ETH/USDT, SOL/USDT, BNB/USDT, XRP/USDT]
+  start: 2023-01-01
+strategy:
+  name: momentum
+  params: {lookback: 168}
+costs: {fee_bps: 10, slippage_bps: 5}
+initial_capital: 10000

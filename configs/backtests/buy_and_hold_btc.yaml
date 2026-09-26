@@ -1,0 +1,11 @@
+name: buy-and-hold BTC (sanity baseline)
+data:
+  exchange: binance
+  timeframe: 1h
+  symbols: [BTC/USDT]
+  start: 2023-01-01
+strategy:
+  name: buy_and_hold
+  params: {}
+costs: {fee_bps: 10, slippage_bps: 5}
+initial_capital: 10000

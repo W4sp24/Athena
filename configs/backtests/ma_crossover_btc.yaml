@@ -1,0 +1,11 @@
+name: MA crossover 50/200 on BTC
+data:
+  exchange: binance
+  timeframe: 1h
+  symbols: [BTC/USDT]
+  start: 2023-01-01
+strategy:
+  name: ma_crossover
+  params: {fast: 50, slow: 200}
+costs: {fee_bps: 10, slippage_bps: 5}
+initial_capital: 10000
