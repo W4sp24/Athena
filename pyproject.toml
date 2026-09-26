@@ -125,6 +125,12 @@ forbidden_modules = [
 ]
 
 [[tool.importlinter.contracts]]
+name = "Analytics reads results only; it never reaches brokers or the exchange"
+type = "forbidden"
+source_modules = ["cryptolab.analytics"]
+forbidden_modules = ["cryptolab.execution", "cryptolab.reconcile", "ccxt"]
+
+[[tool.importlinter.contracts]]
 name = "Nothing depends on the presentation layer"
 type = "forbidden"
 source_modules = [

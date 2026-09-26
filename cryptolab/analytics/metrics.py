@@ -21,7 +21,6 @@ Conventions where math.md leaves room (all chosen to not flatter a strategy):
 from __future__ import annotations
 
 import math
-import re
 from collections import deque
 from dataclasses import dataclass
 from typing import Literal
@@ -29,6 +28,8 @@ from typing import Literal
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
+
+from cryptolab.data.schema import PERIODS_PER_YEAR
 
 __all__ = [
     "FifoResult",
@@ -52,16 +53,14 @@ FloatArray = npt.NDArray[np.float64]
 
 
 def periods_per_year(timeframe: str) -> int:
-    """P for a timeframe string such as "1h" or "1d".
+    """P for a timeframe string such as "1h" or "1d" (math.md §1).
 
-    math.md §1: crypto trades 24/7, so P = 365 days * 86400 s / bar seconds
-    (8760 hourly, 365 daily). Same formula as ``cryptolab.data.schema.PERIODS_PER_YEAR``.
+    Single source of truth: ``cryptolab.data.schema.PERIODS_PER_YEAR``.
     """
-    match = re.fullmatch(r"(\d+)([mhdw])", timeframe)
-    if match is None or int(match.group(1)) == 0:
-        raise ValueError(f"unsupported timeframe {timeframe!r}")
-    bar_seconds = int(match.group(1)) * _UNIT_SECONDS[match.group(2)]
-    return 365 * 86400 // bar_seconds  # math.md §1
+    try:
+        return PERIODS_PER_YEAR[timeframe]
+    except KeyError:
+        raise ValueError(f"unsupported timeframe {timeframe!r}") from None
 
 
 @dataclass(frozen=True)
