@@ -1,0 +1,20 @@
+# Research backtest risk profile (decision-log D-015, Proposed).
+# RiskGate still runs on every order in backtests (D-004); these are explicit, visible
+# research values, NOT a "disabled" switch. The paper caps (25% / 1,000 USDT / 500 USDT per
+# order) would make research backtests, including the BTC buy-and-hold benchmark, meaningless.
+# Never use this profile for paper or testnet trading: use configs/risk.paper.yaml.
+
+# §2 position and order limits
+allowed_symbols: null          # null = the pairs in the run's data config
+max_position_pct_equity: 100   # a single symbol may take the whole book (no leverage)
+max_position_notional: null    # no absolute per-symbol cap in research
+max_gross_exposure_pct: 100    # still no leverage
+max_order_notional: null       # no per-order cap in research
+min_order_notional: 10         # dust floor (math.md §5.1), same as paper
+max_orders_per_hour: null      # no rate brake in replayed history
+allow_short: true              # simulated shorts, backtest only (math.md §5.6, D-011)
+stale_data_seconds: null       # null = 2 x bar length of the run (risk-model §2 default)
+
+# §3 kill-switch thresholds
+max_daily_loss_pct: 100        # trips only if equity reaches zero within a UTC day
+max_drawdown_pct: 100          # trips only if equity reaches zero
