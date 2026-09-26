@@ -9,6 +9,11 @@ from cryptolab.config import Settings
 app = typer.Typer(help="CryptoLab: research, backtesting, and paper trading.", no_args_is_help=True)
 
 
+@app.callback()
+def main() -> None:
+    """CryptoLab CLI. Modes: backtest | paper | testnet (no live mode exists)."""
+
+
 @app.command()
 def status() -> None:
     """Show the active trading mode."""
