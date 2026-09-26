@@ -160,9 +160,12 @@ def duckdb_connect(
 
     Columns: ``exchange, timeframe, symbol, ts, open, high, low, close, volume``;
     the first three are parsed from the file path. The view is rebuilt on each
-    call, so it always reflects the Parquet source of truth.
+    call, so it always reflects the Parquet source of truth. The session time
+    zone is UTC so ``ts`` comes back UTC (e.g. via ``.df()``); note DuckDB's
+    ``fetchall()`` on TIMESTAMPTZ columns needs the ``pytz`` package.
     """
     con = duckdb.connect(str(database))
+    con.execute("SET TimeZone = 'UTC'")
     base = Path(root) / OHLCV_DIR
     if not any(base.glob(f"*/*/*/{_YEAR_PREFIX}*/{PART_FILE}")):
         con.execute(_EMPTY_VIEW)
