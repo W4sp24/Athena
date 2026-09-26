@@ -155,3 +155,15 @@ Date: 2026-09-27 · Decided by: Claude, pending Ethan's review · Status: Propos
   - (a) Use the paper profile for backtests. Rejected: it makes research results and the benchmark meaningless (see Context).
   - (b) A `risk_enabled: false` flag for backtests. Rejected: it would test a different code path from paper (the reason for D-004), and a flag like that can be flipped by accident in the wrong profile.
   - (c) Scale the paper notional caps with initial capital. Rejected for now: it changes the meaning of a signed-off value, which needs Ethan's decision.
+
+## D-016: Repository stays public (supersedes D-008)
+Date: 2026-09-27 · Decided by: Ethan · Status: Accepted
+- **Context:** The GitHub repo W4sp24/Athena was created public. D-008 had said private.
+- **Decision:** Keep it public. Ethan chose this when asked before the first push of the backtester.
+- **Consequences:**
+  - Everything committed is visible to anyone: engine, strategies, risk profiles, and docs.
+  - The no-secrets rule (pre-commit and CI gitleaks, detect-secrets) is now the only thing protecting credentials, so it must never be bypassed.
+  - Strategy parameters meant for real capital, and live risk limits (`risk.live.yaml`, Phase 2), should be kept out of the repo. Examples: an untracked config, or a private companion repo. That decision gets made at Phase 2.
+- **Alternatives considered:**
+  - Make the repo private (D-008).
+  - Public engine with a private strategy repo. Still an option at Phase 2.
