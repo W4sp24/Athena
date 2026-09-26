@@ -40,3 +40,6 @@ Thumbs.db
 
 # notebooks: keep code, drop checkpoints
 .ipynb_checkpoints/
+
+# Claude Code agent worktrees
+.claude/worktrees/
