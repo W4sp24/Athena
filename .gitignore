@@ -1,0 +1,42 @@
+# secrets — never commit
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# data + state (local only)
+data/
+state/
+logs/
+*.parquet
+*.duckdb
+*.duckdb.wal
+*.sqlite
+*.db
+audit/*.jsonl
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.hypothesis/
+.coverage
+coverage.xml
+htmlcov/
+dist/
+build/
+*.egg-info/
+
+# editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# notebooks: keep code, drop checkpoints
+.ipynb_checkpoints/

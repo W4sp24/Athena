@@ -1,0 +1,9 @@
+# Core money-touching modules and safety docs: Ethan reviews every change.
+/cryptolab/engine/     @W4sp24
+/cryptolab/risk/       @W4sp24
+/cryptolab/execution/  @W4sp24
+/cryptolab/reconcile/  @W4sp24
+/cryptolab/config/     @W4sp24
+/docs/sdd/             @W4sp24
+/tests/test_safety_guards.py @W4sp24
+/CLAUDE.md             @W4sp24

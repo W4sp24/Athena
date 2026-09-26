@@ -1,0 +1,41 @@
+name: ci
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+      - run: uv python install 3.11
+      - run: uv sync --all-extras
+      - name: lint
+        run: uv run ruff check . && uv run ruff format --check .
+      - name: types
+        run: uv run mypy cryptolab
+      - name: module boundaries
+        run: uv run lint-imports
+      - name: safety guards (never skipped)
+        run: uv run pytest tests/test_safety_guards.py -p no:cacheprovider
+      - name: tests + core coverage gate (NFR-03)
+        shell: bash
+        run: |
+          # The gate activates as soon as engine/ or risk/ contain any module besides __init__.py.
+          if find cryptolab/engine cryptolab/risk -name '*.py' ! -name '__init__.py' | grep -q .; then
+            uv run pytest --cov=cryptolab.engine --cov=cryptolab.risk               --cov-report=term-missing --cov-fail-under=80
+          else
+            echo "::notice::no engine/risk modules yet; coverage gate inactive"
+            uv run pytest
+          fi
