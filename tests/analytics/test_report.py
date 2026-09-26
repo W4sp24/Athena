@@ -151,7 +151,7 @@ def test_carried_forward_marks_warning(benchmark: BacktestResult) -> None:
     """math.md §4: the report counts bars marked with a carried-forward close."""
     res = make_result([100.0, 101.0, 102.0, 103.0], meta={"carried_forward_marks": 7})
     r = build_report(res, benchmark, strategy_name="x", settings=SETTINGS)
-    assert any("7" in w and "carried-forward" in w for w in r.warnings)
+    assert any("7" in w and "missing" in w for w in r.warnings)
 
 
 def test_zero_carried_forward_marks_no_warning(benchmark: BacktestResult) -> None:

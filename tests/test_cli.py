@@ -8,4 +8,4 @@ def test_status_reports_paper_by_default(monkeypatch):
     monkeypatch.chdir("tests")  # no .env here
     result = CliRunner().invoke(app, ["status"])
     assert result.exit_code == 0
-    assert "mode: paper" in result.output
+    assert "Mode: paper" in result.output

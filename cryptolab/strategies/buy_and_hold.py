@@ -18,6 +18,7 @@ class BuyAndHold:
     """
 
     name = "buy_and_hold"
+    summary = "Buy once at the start and hold."
 
     def __init__(
         self,

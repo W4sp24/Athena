@@ -10,6 +10,7 @@ from typing import Annotated
 
 import typer
 
+from cryptolab import terminal
 from cryptolab.config import Settings
 from cryptolab.config.backtest import load_backtest_config
 from cryptolab.data.exchange import DEFAULT_EXCHANGE
@@ -17,7 +18,7 @@ from cryptolab.data.quality import quality_report
 from cryptolab.data.store import OhlcvStore
 from cryptolab.data.update import update
 from cryptolab.runner import MissingDataError, run_config, save_run
-from cryptolab.strategies.registry import available_strategies
+from cryptolab.strategies.registry import discover
 
 app = typer.Typer(help="CryptoLab: research, backtesting, and paper trading.", no_args_is_help=True)
 data_app = typer.Typer(help="Download and check market data (FR-01..FR-03).", no_args_is_help=True)
@@ -27,6 +28,8 @@ DataRoot = Annotated[Path, typer.Option("--root", help="Data store directory.")]
 Exchange = Annotated[str, typer.Option("--exchange", "-e", help="CCXT exchange id.")]
 Timeframe = Annotated[str, typer.Option("--timeframe", "-t", help="Bar size, e.g. 1h or 1d.")]
 Symbols = Annotated[list[str], typer.Argument(help="Pairs, e.g. BTC/USDT ETH/USDT.")]
+
+console = terminal.make_console()
 
 
 def _utc_date(value: str) -> datetime:
@@ -45,7 +48,8 @@ def main() -> None:
 @app.command()
 def status() -> None:
     """Show the active trading mode."""
-    typer.echo(f"mode: {Settings().mode.value}")
+    mode = Settings().mode.value
+    console.print(f"Mode: [bold green]{mode}[/]  [dim](no live trading mode exists)[/]")
 
 
 @app.command()
@@ -53,25 +57,29 @@ def backtest(
     config: Annotated[Path, typer.Argument(help="Backtest YAML, e.g. configs/backtests/*.yaml.")],
     out: Annotated[Path, typer.Option(help="Where to save report + CSVs.")] = Path("reports"),
     save: Annotated[bool, typer.Option(help="Save report files.")] = True,
+    markdown: Annotated[bool, typer.Option(help="Print the plain markdown report.")] = False,
 ) -> None:
     """Run a backtest from a config and print the report vs BTC buy-and-hold (FR-21)."""
     cfg = load_backtest_config(config)
     try:
-        run = run_config(cfg)
+        with console.status(f"Backtesting [bold]{cfg.name}[/] …"):
+            run = run_config(cfg)
     except MissingDataError as exc:
-        typer.echo(f"error: {exc}", err=True)
+        console.print(f"[bold red]error:[/] {exc}")
         raise typer.Exit(code=2) from None
-    typer.echo(run.report.to_text())
+    if markdown:
+        typer.echo(run.report.to_markdown())
+    else:
+        console.print(terminal.backtest_report(run.report))
     if save:
         path = save_run(run, out, datetime.now(UTC))
-        typer.echo(f"\nsaved: {path}")
+        console.print(f"  [dim]Saved report, equity curve and trades to[/] {path}\n")
 
 
 @app.command()
 def strategies() -> None:
-    """List available strategies."""
-    for name in available_strategies():
-        typer.echo(name)
+    """List available strategies and their parameters."""
+    console.print(terminal.strategies_table(sorted(discover().items())))
 
 
 @data_app.command("download")
@@ -84,14 +92,16 @@ def data_download(
 ) -> None:
     """Download or incrementally update candles, then print a quality summary."""
     store = OhlcvStore(root)
-    added = update(store, exchange, symbols, timeframe, _utc_date(start))
-    for symbol in symbols:
-        report = quality_report(store.read(exchange, symbol, timeframe), timeframe)
-        verdict = "PASS" if report.passed() else "CHECK"
-        typer.echo(
-            f"{symbol:12s} +{added.get(symbol, 0):>6d} bars  total {report.n_bars:>6d}  "
-            f"missing {report.missing_bars} ({report.missing_pct:.3f}%)  {verdict}"
-        )
+    added: dict[str, int] = {}
+    with console.status("") as status:
+        for symbol in symbols:
+            status.update(f"Downloading [bold]{symbol}[/] {timeframe} from {exchange} …")
+            added.update(update(store, exchange, [symbol], timeframe, _utc_date(start)))
+    rows = [
+        (s, added.get(s, 0), quality_report(store.read(exchange, s, timeframe), timeframe))
+        for s in symbols
+    ]
+    console.print(terminal.download_table(rows))
 
 
 @data_app.command("quality")
@@ -106,7 +116,7 @@ def data_quality(
     failed = False
     for symbol in symbols:
         report = quality_report(store.read(exchange, symbol, timeframe), timeframe)
-        typer.echo(f"== {exchange} {symbol} {timeframe}\n{report.to_text()}\n")
+        console.print(terminal.quality_panel(f"{exchange} {symbol} {timeframe}", report))
         failed |= not report.passed()
     raise typer.Exit(code=1 if failed else 0)
 
@@ -115,9 +125,11 @@ def data_quality(
 def data_list(root: DataRoot = Path("data")) -> None:
     """List stored series."""
     store = OhlcvStore(root)
-    for exchange, timeframe, symbol in store.list_series():
-        last = store.last_ts(exchange, symbol, timeframe)
-        typer.echo(f"{exchange:10s} {timeframe:4s} {symbol:12s} last bar {last}")
+    rows = [(e, tf, s, store.last_ts(e, s, tf)) for e, tf, s in store.list_series()]
+    if not rows:
+        console.print("[yellow]No data yet.[/] Try: cryptolab data download BTC/USDT")
+        return
+    console.print(terminal.series_table(rows))
 
 
 if __name__ == "__main__":

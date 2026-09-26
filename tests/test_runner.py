@@ -82,4 +82,4 @@ def test_cli_backtest(tmp_path: Path) -> None:
     res = CliRunner().invoke(app, ["backtest", str(cfg), "--out", str(tmp_path / "reports")])
     assert res.exit_code == 0, res.output
     assert "BTC buy & hold" in res.output
-    assert "saved:" in res.output
+    assert "Saved report" in res.output

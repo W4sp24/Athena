@@ -661,6 +661,7 @@ dependencies = [
     { name = "pydantic-settings" },
     { name = "pytz" },
     { name = "pyyaml" },
+    { name = "rich" },
     { name = "typer" },
 ]
 
@@ -702,6 +703,7 @@ requires-dist = [
     { name = "pydantic-settings", specifier = ">=2.3" },
     { name = "pytz", specifier = ">=2026.4" },
     { name = "pyyaml", specifier = ">=6.0" },
+    { name = "rich", specifier = ">=13.7" },
     { name = "scipy", marker = "extra == 'stats'", specifier = ">=1.13" },
     { name = "statsmodels", marker = "extra == 'stats'", specifier = ">=0.14" },
     { name = "streamlit", marker = "extra == 'dashboard'", specifier = ">=1.36" },

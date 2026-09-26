@@ -263,7 +263,8 @@ def build_report(
     n_cf = _count_carried_forward(result.meta)
     if n_cf > 0:
         warnings.append(
-            f"{n_cf} bar mark(s) used a carried-forward close because data was missing (math.md §4)"
+            f"{n_cf} candle(s) missing from the data; the last known price was reused"
+            " for those bars (math.md §4)"
         )
     if fee_bps is None or slippage_bps is None:
         warnings.append("fee and/or slippage settings not provided to the report")

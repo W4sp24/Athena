@@ -15,6 +15,7 @@ class MACrossover:
     """
 
     name = "ma_crossover"
+    summary = "Hold a coin while its fast moving average is above its slow one."
 
     def __init__(self, fast: int, slow: int, symbols: Sequence[str] | None = None) -> None:
         if not (1 <= fast < slow):

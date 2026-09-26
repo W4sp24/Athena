@@ -16,6 +16,7 @@ class Momentum:
     """
 
     name = "momentum"
+    summary = "Hold coins whose price rose over the last lookback bars."
 
     def __init__(
         self, lookback: int, threshold: float = 0.0, symbols: Sequence[str] | None = None
