@@ -3,7 +3,7 @@ name = "cryptolab"
 version = "0.1.0"
 description = "Crypto quant research, backtesting, and paper-trading platform (safe by default)."
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 dependencies = [
     "numpy>=1.26",
     "pandas>=2.2",
@@ -35,6 +35,7 @@ dev = [
     "import-linter>=2.0",
     "pre-commit>=3.7",
     "detect-secrets>=1.5",
+    "pandas-stubs>=3.0.5.260914",
 ]
 
 [build-system]
@@ -47,7 +48,7 @@ packages = ["cryptolab"]
 # ---------------------------------------------------------------- tooling
 [tool.ruff]
 line-length = 100
-target-version = "py311"
+target-version = "py312"
 extend-exclude = ["prototypes", "ui-reference", "notebooks"]
 
 [tool.ruff.lint]
@@ -58,9 +59,13 @@ ignore = ["PLR0913", "PLR2004"]
 "tests/**" = ["S101", "PLR2004"]
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.12"
 strict = true
 packages = ["cryptolab"]
+
+[[tool.mypy.overrides]]
+module = ["ccxt", "ccxt.*", "duckdb", "pyarrow", "pyarrow.*"]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

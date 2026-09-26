@@ -66,7 +66,7 @@ Other directories:
 
 ## Conventions
 
-- **Python and tooling:** Python ≥3.11. `uv` manages the environment. Code is formatted and linted with `ruff`, and type-checked with `mypy`.
+- **Python and tooling:** Python ≥3.12 (D-014). `uv` manages the environment. Code is formatted and linted with `ruff`, and type-checked with `mypy`.
 - **Time:** all timestamps are UTC and tz-aware. A bar is identified by its **open** time.
 - **Money:**
   - Use `float64` in the backtest.

@@ -133,3 +133,9 @@ Date: 2026-09-27 · Decided by: Claude, from a P1-style probe · Status: Accepte
   - `okx` is the fallback (FR-04).
 - **This is not a choice of trading exchange.** The exchange used for testnet and, later, live trading stays open. It depends on the regulatory question in `deployment.md` §4.2: SEC PH advisories and access restrictions affecting some offshore exchanges.
 - **Alternative considered:** using the same exchange for data and trading from day one. Rejected until §4.2 is answered.
+
+## D-014: Python floor raised to 3.12
+Date: 2026-09-27 · Decided by: Claude · Status: Accepted
+- **Context:** The context doc says Python 3.11+. Current NumPy type stubs use 3.12-only syntax, so strict mypy fails when it targets 3.11. The dev machine runs 3.12.
+- **Decision:** `requires-python >=3.12`. CI, ruff, and mypy all target 3.12. This still satisfies "3.11+".
+- **Alternatives considered:** pin an older NumPy, or loosen mypy. Both trade correctness tooling for a Python version nobody here uses.
