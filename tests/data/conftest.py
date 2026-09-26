@@ -74,9 +74,10 @@ def make_frame(
     skipped = set(skip)
     idx = [i for i in range(n_bars) if i not in skipped]
     opens = [100.0 + i for i in idx]
+    ts = pd.DatetimeIndex([start + i * step for i in idx], tz="UTC").astype("datetime64[ns, UTC]")
     df = pd.DataFrame(
         {
-            "ts": pd.DatetimeIndex([start + i * step for i in idx]).astype("datetime64[ns, UTC]"),
+            "ts": ts,
             "open": opens,
             "high": [o + 2.0 for o in opens],
             "low": [o - 1.0 for o in opens],
