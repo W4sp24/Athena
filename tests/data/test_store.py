@@ -157,6 +157,18 @@ def test_duckdb_view_exposes_series_columns(tmp_path: Path) -> None:
         con.close()
 
 
+def test_duckdb_session_timezone_is_utc(tmp_path: Path) -> None:
+    store = OhlcvStore(tmp_path)
+    store.write("binance", "BTC/USDT", "1h", make_frame(n_bars=3))
+    con = duckdb_connect(tmp_path)
+    try:
+        out = con.execute("SELECT ts FROM ohlcv ORDER BY ts").df()
+        assert str(out["ts"].dt.tz) == "UTC"
+        assert out["ts"].iloc[0] == pd.Timestamp(T0)
+    finally:
+        con.close()
+
+
 def test_duckdb_view_on_empty_store(tmp_path: Path) -> None:
     con = duckdb_connect(tmp_path)
     try:
