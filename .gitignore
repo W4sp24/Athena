@@ -7,7 +7,7 @@
 secrets/
 
 # data + state (local only)
-data/
+/data/
 state/
 logs/
 *.parquet
