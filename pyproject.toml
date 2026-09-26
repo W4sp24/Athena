@@ -69,9 +69,10 @@ ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-ra --strict-markers"
+addopts = "-ra --strict-markers -m \"not network\""
 markers = [
     "testnet: hits a real exchange testnet; needs CRYPTOLAB_TESTNET_* env vars (skipped otherwise)",
+    "network: hits a real public exchange API (deselected by default; run with -m network)",
 ]
 
 [tool.coverage.run]
